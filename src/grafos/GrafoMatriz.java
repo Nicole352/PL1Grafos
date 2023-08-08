@@ -2,11 +2,13 @@ package grafos;
 
 import java.util.*;
 
-public class Grafo {
+public class GrafoMatriz {
     List<Vertice> vertices;
     private List<Arista> aristas;
+	public int numVerts;
+	public int[][] matAd;
 
-    public Grafo(int numVertices) {
+    public GrafoMatriz(int numVertices) {
         vertices = new ArrayList<>();
         aristas = new ArrayList<>();
     }
@@ -20,7 +22,7 @@ public class Grafo {
         // Si es un grafo no dirigido, agregar también la arista inversa
         aristas.add(new Arista(destino, origen, peso));
     }
-
+   
     public List<Arista> obtenerAristas() {
         return aristas;
     }
@@ -35,36 +37,11 @@ public class Grafo {
         return adyacentes;
     }
 
-    // Implementación del algoritmo de Dijkstra para obtener el camino más corto desde un vértice inicial
-    public int[] dijkstra(Vertice verticeInicial) {
-        int numVertices = vertices.size();
-        int[] distancias = new int[numVertices];
-        Arrays.fill(distancias, Integer.MAX_VALUE);
-        distancias[vertices.indexOf(verticeInicial)] = 0;
-
-        List<Vertice> noVisitados = new ArrayList<>(vertices);
-
-        while (!noVisitados.isEmpty()) {
-            int indiceVerticeActual = obtenerIndiceVerticeConDistanciaMinima(distancias, noVisitados);
-            Vertice verticeActual = noVisitados.remove(indiceVerticeActual);
-
-            List<Vertice> adyacentes = obtenerVerticesAdyacentes(verticeActual);
-            for (Vertice adyacente : adyacentes) {
-                int distanciaNueva = distancias[vertices.indexOf(verticeActual)] + obtenerPesoArista(verticeActual, adyacente);
-                int indiceAdyacente = vertices.indexOf(adyacente);
-                if (distanciaNueva < distancias[indiceAdyacente]) {
-                    distancias[indiceAdyacente] = distanciaNueva;
-                }
-            }
-        }
-
-        return distancias;
-    }
-
-    // Implementación del recorrido en profundidad (DFS)
+ // Implementación del recorrido en profundidad (DFS)
     public void dfs(Vertice verticeInicial) {
         boolean[] visitados = new boolean[vertices.size()];
         dfsRecursivo(verticeInicial, visitados);
+        System.out.println();
     }
 
     private void dfsRecursivo(Vertice vertice, boolean[] visitados) {
@@ -106,31 +83,8 @@ public class Grafo {
                     }
                 }
             }
+            System.out.println();
         }
-    }
-
-
-    // Método auxiliar para obtener el índice del vértice no visitado con la distancia más pequeña
-    private int obtenerIndiceVerticeConDistanciaMinima(int[] distancias, List<Vertice> noVisitados) {
-        int minDistancia = Integer.MAX_VALUE;
-        int indice = -1;
-        for (int i = 0; i < distancias.length; i++) {
-            if (noVisitados.contains(vertices.get(i)) && distancias[i] < minDistancia) {
-                minDistancia = distancias[i];
-                indice = i;
-            }
-        }
-        return indice;
-    }
-
-    // Método auxiliar para obtener el peso de una arista entre dos vértices
-    private int obtenerPesoArista(Vertice origen, Vertice destino) {
-        for (Arista arista : aristas) {
-            if (arista.getOrigen().equals(origen) && arista.getDestino().equals(destino)) {
-                return arista.getPeso();
-            }
-        }
-        return Integer.MAX_VALUE;
     }
 
     public int obtenerProfundidad(Vertice verticeInicial) {
@@ -148,14 +102,17 @@ public class Grafo {
 
             while (!cola.isEmpty()) {
                 Vertice verticeActual = cola.poll();
+                int nivelActual = nivel[vertices.indexOf(verticeActual)];
+
+                maxProfundidad = Math.max(maxProfundidad, nivelActual);
+
                 List<Vertice> adyacentes = obtenerVerticesAdyacentes(verticeActual);
                 for (Vertice adyacente : adyacentes) {
                     int indexAdyacente = vertices.indexOf(adyacente);
                     if (!visitados[indexAdyacente]) {
                         visitados[indexAdyacente] = true;
-                        nivel[indexAdyacente] = nivel[indexVerticeInicial] + 1;
+                        nivel[indexAdyacente] = nivelActual + 1;
                         cola.add(adyacente);
-                        maxProfundidad = Math.max(maxProfundidad, nivel[indexAdyacente]);
                     }
                 }
             }
@@ -199,4 +156,5 @@ public class Grafo {
 
         return -1;
     }
+    
 }
